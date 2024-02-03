@@ -38,12 +38,16 @@ exports.deleteUrl = async (req, res) => {
   try {
     const url = await Url.findOne({ urlCode: req.params.code });
     if (url) {
-      await Url.findByIdAndDelete(url._id);
-      return res.status(201).json("Deleted");
+      if (url.userId.equals(req.user._id)) {
+        await url.deleteOne();
+        return res.status(204).end();
+      } else {
+        return res.status(401).json({ message: "YOU SHALL NOT PASS!" });
+      }
+      
     } else {
-      return res.status(404).json("No URL Found");
+      return res.status(404).json("NO URL FOUND!");
     }
   } catch (err) {
     next(err);
-  }
-};
+  }}
